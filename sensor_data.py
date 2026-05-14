@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta 
 def generate_sensor_data(days=30):
-    start_time= datetime(2024,1,1)
+    start_time= datetime(2026,5,14)
     num_readings= days * 24
     timestamps = [start_time + timedelta(hours=i) 
                   for i in range(num_readings)]

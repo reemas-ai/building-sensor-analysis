@@ -1,0 +1,33 @@
+import pandas as pd
+from groq import Groq
+from dotenv import load_dotenv
+import os
+
+data =pd.read_csv('sensor_data.csv')
+
+txt = data.apply(lambda row: 
+    f"In {row['timestamp']} temperature:{row['temperature']:.1f}\
+        humidity:{row['humidity']:.1f}\
+            vibration:{row['vibration']:.4f}\
+                pressure:{row['pressure']:.1f}\
+                    anomaly:{'Yes' if row['is_anomaly'] == 1 else 'No'}", axis=1).tolist()
+load_dotenv()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+input_txt=input("\nHi,\n you can ask any question related to the latest updates captured by the sensors\n and to understand the general situation.\n Please feel free to ask your question.")
+relevant =[ i for i in txt if any(w in i for w in input_txt.split())][:10]
+print(len(relevant))
+
+context = "\n".join(relevant)
+
+prompt = f"""
+    Based on this data:{context}"
+    Answer this question:: {input_txt}"""
+
+response = client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    messages=[
+    {"role": "system", "content": "You are an assistant specializing in analyzing building sensor data. Answer based only on the provided data."},
+    {"role": "user", "content": prompt}
+]
+)
+print(response.choices[0].message.content)

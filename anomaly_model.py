@@ -4,25 +4,26 @@ from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-df = pd.read_csv('sensor_data.csv')
+df = pd.read_csv('sensor_data.csv') # Load the dataset
 
 features = ['temperature', 'humidity', 'vibration', 'pressure']
-x = df[features]
+x = df[features] # we need numeric data only 
 
 
-model = IsolationForest(contamination=0.004, random_state=42)
+model = IsolationForest(contamination=0.004, random_state=42)# contamination=0.004 means we expect ~3 anomalies in 720 readings
+                                                             # random_state=42 ensures reproducible results
 model.fit(x)
 
-
+# start prediction
 df['predicted'] = model.predict(x)
-df['predicted'] = df['predicted'].map({1: 'Normal', -1: 'Anomaly'})
+df['predicted'] = df['predicted'].map({1: 'Normal', -1: 'Anomaly'})# we know 1 mean normal and -1 mean anomaly
 
 
-print("Predicted Anomalies:")
+print("Predicted Anomalies:") #print the prediction  
 print(df['predicted'].value_counts())
 
 print("Real_anomalies:")
-real_anomalies = df[df['is_anomaly'] == 1]
+real_anomalies = df[df['is_anomaly'] == 1]# extract real anomalies from our label to see if it predict correct 
 print(real_anomalies[['timestamp', 'temperature', 'humidity', 'predicted']])
 print("\nClassification Report:")
 print(classification_report(df['is_anomaly'], 
@@ -30,9 +31,9 @@ print(classification_report(df['is_anomaly'],
 
 
 
-df['timestamp'] = pd.to_datetime(df['timestamp'])
+df['timestamp'] = pd.to_datetime(df['timestamp'])# make it in time and date format 
 
-
+# take the results to make a plot for our analysis
 normal = df[df['predicted'] == 'Normal']
 anomaly = df[df['predicted'] == 'Anomaly']
 real = df[df['is_anomaly'] == 1]

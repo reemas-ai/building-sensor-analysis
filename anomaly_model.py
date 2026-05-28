@@ -3,6 +3,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import joblib
 
 df = pd.read_csv('sensor_data.csv') # Load the dataset
 
@@ -57,3 +58,5 @@ plt.xticks(rotation=90)
 plt.tight_layout()
 plt.savefig('anomaly_detection_plot.png')
 plt.show()
+
+joblib.dump(model, 'model.pkl')#save the model to a file for later use in our API

@@ -1,3 +1,8 @@
+
+
+# This is the basic RAG system — replaced by rag_vector.py which uses Vector Search
+# Kept for reference and learning purposes
+
 import pandas as pd
 from groq import Groq
 from dotenv import load_dotenv

@@ -16,9 +16,9 @@ txt = data.apply(lambda row:
                 pressure:{row['pressure']:.1f}\
                     anomaly:{'Yes' if row['is_anomaly'] == 1 else 'No'}", axis=1).tolist()
  
-model =SentenceTransformer("all-MiniLM-L6-v2")
+model =SentenceTransformer("all-MiniLM-L6-v2")# Load the sentence transformer model for encoding the text data into vectors for similarity search in the RAG system.
 client=chromadb.Client()
-
+# Create two collections in the vector database: one for normal readings and one for anomalies, to enable efficient retrieval based on the type of question asked by the user.
 collection_normal =client.create_collection("building_normal")
 collection_anomaly =client.create_collection("building_anomalies")
 
@@ -40,12 +40,15 @@ collection_anomaly.add(
     ids=[str(i)for i in range (len(anomaly_txt))]
 )
 question =input(f"\n>> Hi,\n you can ask any question related to the latest updates captured by the sensors\n and to understand the general situation.\n Please feel free to ask your question.")    
-memory =[]
+memory =[]# Initialize an empty list to store the conversation history (memory) for the RAG system
+# The main loop of the RAG system, where the user can ask questions about the building sensor data. 
 while True:
     if question.lower() == 'exit':
         break
     question_vector=model.encode([question]).tolist()
     last_context = memory[-1]['content'] if memory else ""
+    # LLM-based routing: uses Groq to classify the question type
+    # considering previous context to handle follow-up questions  
     routing_response = client_q.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
